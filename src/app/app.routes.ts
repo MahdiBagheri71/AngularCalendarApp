@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
+import {CalendarViewComponent} from './calendar/components/calendar-view/calendar-view.component';
 
 
 export const routes: Routes = [
   {
     path: 'calendars',
-    loadComponent: () => import('./calendar/components/calendar-view/calendar-view.component').then(m => m.CalendarViewComponent)
+    component: CalendarViewComponent
   },
   {
     path: '',

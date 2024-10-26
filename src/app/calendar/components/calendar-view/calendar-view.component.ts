@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { MatDialog } from '@angular/material/dialog';
+import { AppointmentFormComponent } from './../appointment-form/appointment-form.component';
 
 interface Appointment {
   title: string;
@@ -26,8 +28,29 @@ export class CalendarViewComponent implements OnInit {
 
   appointments: Appointment[] = [];
 
+  constructor(private dialog: MatDialog) {}
+
   ngOnInit() {
     this.loadAppointments();
+  }
+
+  openAppointmentForm(hour: string) {
+    const dialogRef = this.dialog.open(AppointmentFormComponent, {
+      width: '600px',
+      data: { hour }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result)
+      if (result) {
+        const newAppointment: Appointment = {
+          ...result,
+          hour: result.time
+        };
+        this.appointments.push(newAppointment);
+        this.saveAppointments();
+      }
+    });
   }
 
   loadAppointments() {

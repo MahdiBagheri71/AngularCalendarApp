@@ -1,18 +1,45 @@
-<form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
-  <mat-form-field>
-    <mat-label>Title</mat-label>
-    <input matInput formControlName="title" />
-  </mat-form-field>
+<!-- appointment-form.component.html -->
+<div class="dialog-container">
+  <h2 mat-dialog-title>New Appointment</h2>
 
-  <mat-form-field>
-    <mat-label>Date</mat-label>
-    <input matInput formControlName="date" type="date" />
-  </mat-form-field>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="appointment-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" placeholder="Enter appointment title">
+      <mat-error *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
+        {{ getErrorMessage('title') }}
+      </mat-error>
+    </mat-form-field>
 
-  <mat-form-field>
-    <mat-label>Time</mat-label>
-    <input matInput formControlName="time" type="time" />
-  </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Time</mat-label>
+      <mat-select formControlName="time">
+        <mat-option *ngFor="let hour of availableHours" [value]="hour">
+          {{ hour }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('time')?.invalid && form.get('time')?.touched">
+        {{ getErrorMessage('time') }}
+      </mat-error>
+    </mat-form-field>
 
-  <button mat-raised-button color="primary" type="submit" [disabled]="!appointmentForm.valid">Add Appointment</button>
-</form>
+    <div class="color-picker-container">
+      <label class="color-label">Appointment Color:</label>
+      <div class="color-options">
+        <button
+          type="button"
+          *ngFor="let color of defaultColors"
+          class="color-circle"
+          [style.background-color]="color"
+          [class.selected]="form.get('color')?.value === color"
+          (click)="form.patchValue({color: color})">
+        </button>
+      </div>
+    </div>
+
+    <div class="dialog-actions">
+      <button mat-button type="button" (click)="cancel()">Cancel</button>
+      <button mat-raised-button color="primary" type="submit">Save Appointment</button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,74 @@
+.dialog-container {
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 100%;
+}
+
+.appointment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.color-picker-container {
+  margin: 1rem 0;
+
+  .color-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 0.9rem;
+  }
+
+  .color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .color-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &.selected {
+      border-color: #000;
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px #000;
+    }
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+
+  button {
+    min-width: 120px;
+  }
+}
+
+textarea {
+  min-height: 80px;
+}
+
+::ng-deep {
+  .mat-mdc-form-field-appearance-outline {
+    .mat-mdc-form-field-outline {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+}
