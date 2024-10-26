@@ -1,1 +1,6 @@
-<p>calendar-view works!</p>
+<div cdkDropList (cdkDropListDropped)="drop($event)">
+  <div *ngFor="let appointment of appointments" cdkDrag>
+    <h3>{{ appointment.title }}</h3>
+    <p>{{ appointment.date | date }} at {{ appointment.time }}</p>
+  </div>
+</div>
