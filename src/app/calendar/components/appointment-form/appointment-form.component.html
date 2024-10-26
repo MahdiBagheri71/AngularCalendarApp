@@ -1,1 +1,18 @@
-<p>appointment-form works!</p>
+<form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()">
+  <mat-form-field>
+    <mat-label>Title</mat-label>
+    <input matInput formControlName="title" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Date</mat-label>
+    <input matInput formControlName="date" type="date" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Time</mat-label>
+    <input matInput formControlName="time" type="time" />
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" type="submit" [disabled]="!appointmentForm.valid">Add Appointment</button>
+</form>
