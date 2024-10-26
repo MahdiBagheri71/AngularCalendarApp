@@ -7,10 +7,10 @@ import { AppComponent } from './app.component';
 @NgModule({
   imports: [
     BrowserModule,
-    RouterModule.forRoot([{ path: 'calendar', loadChildren: () => import('./calendar/calendar.module').then(m => m.CalendarModule) }]),
+    RouterModule.forRoot([]),
     AppComponent
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: []
 })
 export class AppModule { }

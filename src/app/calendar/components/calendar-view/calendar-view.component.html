@@ -1,6 +1,26 @@
-<div cdkDropList (cdkDropListDropped)="drop($event)">
-  <div *ngFor="let appointment of appointments" cdkDrag>
-    <h3>{{ appointment.title }}</h3>
-    <p>{{ appointment.date | date }} at {{ appointment.time }}</p>
+<div class="calendar-container">
+  <div class="hour-column">
+    <div *ngFor="let hour of hours" class="hour-label">{{ hour }}</div>
+  </div>
+
+  <div class="calendar-grid" cdkDropListGroup>
+    <div
+      *ngFor="let hour of hours"
+      class="time-slot"
+      cdkDropList
+      (cdkDropListDropped)="drop($event, hour)"
+      [attr.data-hour]="hour"
+    >
+      <div
+        *ngFor="let appointment of getAppointmentsForHour(hour)"
+        class="appointment"
+        [ngStyle]="{'background-color': appointment.color}"
+        cdkDrag
+        [cdkDragData]="appointment"
+      >
+        <h4>{{ appointment.title }}</h4>
+        <p>{{ appointment.time }}</p>
+      </div>
+    </div>
   </div>
 </div>
