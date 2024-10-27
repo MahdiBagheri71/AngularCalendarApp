@@ -101,7 +101,7 @@ describe('AppointmentFormComponent', () => {
 
   it('should close the dialog when cancel button is clicked', () => {
     const cancelButton = fixture.debugElement.query(
-      By.css('.dialog-actions button[type="button"]')
+      By.css('.dialog-actions button[type="button"]'),
     );
     cancelButton.nativeElement.click();
     expect(dialogRefSpy.close).toHaveBeenCalled();
@@ -110,7 +110,7 @@ describe('AppointmentFormComponent', () => {
   it('should select a color on color circle click', () => {
     const color = component.defaultColors[0];
     const colorCircle = fixture.debugElement.queryAll(
-      By.css('.color-circle')
+      By.css('.color-circle'),
     )[0];
     colorCircle.triggerEventHandler('click', null);
     fixture.detectChanges();
@@ -118,14 +118,12 @@ describe('AppointmentFormComponent', () => {
     expect(colorCircle.nativeElement.classList).toContain('selected');
   });
 
-
-
   it('should enable submit button if form is valid', () => {
     component.form.get('title')?.setValue('Meeting');
     component.form.get('time')?.setValue('10:00');
     fixture.detectChanges();
     const submitButton = fixture.debugElement.query(
-      By.css('button[type="submit"]')
+      By.css('button[type="submit"]'),
     );
     expect(submitButton.nativeElement.disabled).toBeFalse();
   });
