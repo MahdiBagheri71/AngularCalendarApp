@@ -45,24 +45,39 @@ export class AppointmentFormComponent implements OnInit {
     '07:00 PM',
   ];
   defaultColors: string[] = [
-    '#FF5252',
-    '#FF4081',
-    '#E040FB',
-    '#7C4DFF',
-    '#536DFE',
-    '#448AFF',
-    '#40C4FF',
-    '#18FFFF',
-    '#64FFDA',
-    '#69F0AE',
-    '#B2FF59',
-    '#EEFF41',
+    '#D32F2F', // Dark Red
+    '#C2185B', // Dark Pink
+    '#7B1FA2', // Dark Purple
+    '#512DA8', // Deep Purple
+    '#303F9F', // Dark Indigo
+    '#1976D2', // Dark Blue
+    '#0288D1', // Dark Light Blue
+    '#0097A7', // Dark Cyan
+    '#00796B', // Dark Teal
+    '#388E3C', // Dark Green
+    '#689F38', // Dark Light Green
+    '#AFB42B', // Dark Lime
+    '#B71C1C', // Deeper Red
+    '#880E4F', // Deeper Pink
+    '#4A148C', // Deeper Purple
+    '#311B92', // Deeper Purple
+    '#1A237E', // Deeper Indigo
+    '#0D47A1', // Deeper Blue
+    '#01579B', // Deeper Light Blue
+    '#006064', // Deeper Cyan
+    '#004D40', // Deeper Teal
+    '#1B5E20', // Deeper Green
   ];
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<AppointmentFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { hour: string },
+    @Inject(MAT_DIALOG_DATA)
+    public data: {
+      hour: string;
+      isEdit?: boolean;
+      appointment?: any;
+    },
   ) {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -72,12 +87,19 @@ export class AppointmentFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    const hour = this.data.hour;
-
-    if (this.availableHours.includes(hour)) {
+    if (this.data.isEdit && this.data.appointment) {
       this.form.patchValue({
-        time: hour,
+        title: this.data.appointment.title,
+        time: this.data.appointment.hour,
+        color: this.data.appointment.color,
       });
+    } else {
+      const formattedHour = this.data.hour;
+      if (formattedHour) {
+        this.form.patchValue({
+          time: formattedHour,
+        });
+      }
     }
   }
 

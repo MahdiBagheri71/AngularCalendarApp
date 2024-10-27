@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatDialog } from '@angular/material/dialog';
 import { AppointmentFormComponent } from './../appointment-form/appointment-form.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
 
 interface Appointment {
   title: string;
@@ -17,7 +19,7 @@ interface Appointment {
   templateUrl: './calendar-view.component.html',
   styleUrls: ['./calendar-view.component.scss'],
   standalone: true,
-  imports: [CommonModule, DragDropModule],
+  imports: [CommonModule, DragDropModule, MatMenuModule, MatIconModule],
 })
 export class CalendarViewComponent implements OnInit {
   hours = [
@@ -103,7 +105,30 @@ export class CalendarViewComponent implements OnInit {
   }
 
   getRandomColor() {
-    const colors = ['#4285f4', '#34a853', '#fbbc05', '#ea4335', '#34a853'];
+    const colors = [
+      '#D32F2F', // Dark Red
+      '#C2185B', // Dark Pink
+      '#7B1FA2', // Dark Purple
+      '#512DA8', // Deep Purple
+      '#303F9F', // Dark Indigo
+      '#1976D2', // Dark Blue
+      '#0288D1', // Dark Light Blue
+      '#0097A7', // Dark Cyan
+      '#00796B', // Dark Teal
+      '#388E3C', // Dark Green
+      '#689F38', // Dark Light Green
+      '#AFB42B', // Dark Lime
+      '#B71C1C', // Deeper Red
+      '#880E4F', // Deeper Pink
+      '#4A148C', // Deeper Purple
+      '#311B92', // Deeper Purple
+      '#1A237E', // Deeper Indigo
+      '#0D47A1', // Deeper Blue
+      '#01579B', // Deeper Light Blue
+      '#006064', // Deeper Cyan
+      '#004D40', // Deeper Teal
+      '#1B5E20', // Deeper Green
+    ];
     return colors[Math.floor(Math.random() * colors.length)];
   }
 
@@ -125,5 +150,47 @@ export class CalendarViewComponent implements OnInit {
 
   private updateAppointmentTime(appointment: Appointment, hour: string) {
     appointment.time = hour;
+  }
+  editAppointment(appointment: Appointment) {
+    const dialogRef = this.dialog.open(AppointmentFormComponent, {
+      width: '550px',
+      data: {
+        hour: appointment.hour,
+        isEdit: true,
+        appointment: appointment,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        const index = this.appointments.findIndex(
+          (app) =>
+            app.title === appointment.title && app.hour === appointment.hour,
+        );
+
+        if (index !== -1) {
+          this.appointments[index] = {
+            ...result,
+            hour: result.time,
+          };
+          this.saveAppointments();
+        }
+      }
+    });
+  }
+
+  deleteAppointment(appointment: Appointment) {
+    const index = this.appointments.findIndex(
+      (app) => app.title === appointment.title && app.hour === appointment.hour,
+    );
+
+    if (index !== -1) {
+      this.appointments.splice(index, 1);
+      this.saveAppointments();
+    }
+  }
+
+  stopPropagation(event: Event) {
+    event.stopPropagation();
   }
 }

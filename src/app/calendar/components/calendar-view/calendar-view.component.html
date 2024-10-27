@@ -32,7 +32,28 @@
         cdkDrag
         [cdkDragData]="appointment"
       >
-        <h4>{{ appointment.title }}</h4>
+        <div class="appointment-header">
+          <h4>{{ appointment.title }}</h4>
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            class="more-button"
+            (click)="stopPropagation($event)"
+            [ngStyle]="{ 'background-color': appointment.color }"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="editAppointment(appointment)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button mat-menu-item (click)="deleteAppointment(appointment)">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
         <p>{{ appointment.time }}</p>
       </div>
     </div>
