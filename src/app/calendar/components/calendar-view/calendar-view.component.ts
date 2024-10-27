@@ -17,13 +17,22 @@ interface Appointment {
   templateUrl: './calendar-view.component.html',
   styleUrls: ['./calendar-view.component.scss'],
   standalone: true,
-  imports: [CommonModule, DragDropModule]
+  imports: [CommonModule, DragDropModule],
 })
 export class CalendarViewComponent implements OnInit {
   hours = [
-    '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM',
-    '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM',
-    '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM'
+    '08:00 AM',
+    '09:00 AM',
+    '10:00 AM',
+    '11:00 AM',
+    '12:00 PM',
+    '01:00 PM',
+    '02:00 PM',
+    '03:00 PM',
+    '04:00 PM',
+    '05:00 PM',
+    '06:00 PM',
+    '07:00 PM',
   ];
 
   appointments: Appointment[] = [];
@@ -36,16 +45,16 @@ export class CalendarViewComponent implements OnInit {
 
   openAppointmentForm(hour: string) {
     const dialogRef = this.dialog.open(AppointmentFormComponent, {
-      width: '600px',
-      data: { hour }
+      width: '550px',
+      data: { hour },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log(result)
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log(result);
       if (result) {
         const newAppointment: Appointment = {
           ...result,
-          hour: result.time
+          hour: result.time,
         };
         this.appointments.push(newAppointment);
         this.saveAppointments();
@@ -87,9 +96,9 @@ export class CalendarViewComponent implements OnInit {
       { title: 'Reading', time: '06:00 PM', hour: '06:00 PM' },
     ];
 
-    return sampleTasks.map(task => ({
+    return sampleTasks.map((task) => ({
       ...task,
-      color: this.getRandomColor()
+      color: this.getRandomColor(),
     }));
   }
 
@@ -99,7 +108,7 @@ export class CalendarViewComponent implements OnInit {
   }
 
   getAppointmentsForHour(hour: string): Appointment[] {
-    return this.appointments.filter(app => app.hour === hour);
+    return this.appointments.filter((app) => app.hour === hour);
   }
 
   drop(event: CdkDragDrop<Appointment[]>, targetHour: string) {

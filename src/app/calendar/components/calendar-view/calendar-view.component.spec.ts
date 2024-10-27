@@ -1,23 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AppComponent } from '../../../app.component';
 
-import { CalendarViewComponent } from './calendar-view.component';
-
-describe('CalendarViewComponent', () => {
-  let component: CalendarViewComponent;
-  let fixture: ComponentFixture<CalendarViewComponent>;
+describe('AppComponent', () => {
+  let fixture: ComponentFixture<AppComponent>;
+  let app: AppComponent;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CalendarViewComponent]
-    })
-    .compileComponents();
-    
-    fixture = TestBed.createComponent(CalendarViewComponent);
-    component = fixture.componentInstance;
+      imports: [AppComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(AppComponent);
+    app = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should render title', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain(
+      'Hello, calendar-app'
+    );
   });
 });

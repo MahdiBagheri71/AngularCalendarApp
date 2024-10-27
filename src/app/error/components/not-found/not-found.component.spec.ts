@@ -1,6 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { NotFoundComponent } from './not-found.component';
+import { ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
 
 describe('NotFoundComponent', () => {
   let component: NotFoundComponent;
@@ -8,10 +9,15 @@ describe('NotFoundComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NotFoundComponent]
-    })
-    .compileComponents();
-    
+      imports: [NotFoundComponent],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({}) },
+        },
+      ],
+    }).compileComponents();
+
     fixture = TestBed.createComponent(NotFoundComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

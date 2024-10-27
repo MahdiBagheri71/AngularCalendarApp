@@ -5,8 +5,14 @@
   <form [formGroup]="form" (ngSubmit)="submit()" class="appointment-form">
     <mat-form-field appearance="outline">
       <mat-label>Title</mat-label>
-      <input matInput formControlName="title" placeholder="Enter appointment title">
-      <mat-error *ngIf="form.get('title')?.invalid && form.get('title')?.touched">
+      <input
+        matInput
+        formControlName="title"
+        placeholder="Enter appointment title"
+      />
+      <mat-error
+        *ngIf="form.get('title')?.invalid && form.get('title')?.touched"
+      >
         {{ getErrorMessage('title') }}
       </mat-error>
     </mat-form-field>
@@ -24,22 +30,26 @@
     </mat-form-field>
 
     <div class="color-picker-container">
-      <label class="color-label">Appointment Color:</label>
+      <mat-label class="color-label">Appointment Color:</mat-label>
       <div class="color-options">
-        <button
-          type="button"
+        <span
           *ngFor="let color of defaultColors"
           class="color-circle"
           [style.background-color]="color"
           [class.selected]="form.get('color')?.value === color"
-          (click)="form.patchValue({color: color})">
-        </button>
+          (click)="form.patchValue({ color: color })"
+          (keydown.enter)="form.patchValue({ color: color })"
+          (keydown.space)="form.patchValue({ color: color })"
+          tabindex="0"
+        ></span>
       </div>
     </div>
 
     <div class="dialog-actions">
       <button mat-button type="button" (click)="cancel()">Cancel</button>
-      <button mat-raised-button color="primary" type="submit">Save Appointment</button>
+      <button mat-raised-button color="primary" type="submit">
+        Save Appointment
+      </button>
     </div>
   </form>
 </div>

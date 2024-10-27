@@ -8,6 +8,9 @@
       *ngFor="let hour of hours"
       class="time-slot"
       (click)="openAppointmentForm(hour)"
+      (keydown.enter)="openAppointmentForm(hour)"
+      (keydown.space)="openAppointmentForm(hour)"
+      tabindex="0"
       cdkDropList
       (cdkDropListDropped)="drop($event, hour)"
       [attr.data-hour]="hour"
@@ -15,7 +18,7 @@
       <div
         *ngFor="let appointment of getAppointmentsForHour(hour)"
         class="appointment"
-        [ngStyle]="{'background-color': appointment.color}"
+        [ngStyle]="{ 'background-color': appointment.color }"
         cdkDrag
         [cdkDragData]="appointment"
       >
