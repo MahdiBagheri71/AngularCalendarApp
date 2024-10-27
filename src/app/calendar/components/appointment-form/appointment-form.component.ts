@@ -12,6 +12,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { CommonModule } from '@angular/common';
+import {
+  Appointment,
+  AppointmentDialogData,
+} from '../../../models/appointment.interface';
 
 @Component({
   selector: 'app-appointment-form',
@@ -72,17 +76,12 @@ export class AppointmentFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<AppointmentFormComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    public data: {
-      hour: string;
-      isEdit?: boolean;
-      appointment?: any;
-    },
+    @Inject(MAT_DIALOG_DATA) public data: AppointmentDialogData,
   ) {
     this.form = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       time: ['', Validators.required],
-      color: ['#448AFF', Validators.required],
+      color: ['#1B5E20', Validators.required],
     });
   }
 
@@ -93,19 +92,23 @@ export class AppointmentFormComponent implements OnInit {
         time: this.data.appointment.hour,
         color: this.data.appointment.color,
       });
-    } else {
-      const formattedHour = this.data.hour;
-      if (formattedHour) {
-        this.form.patchValue({
-          time: formattedHour,
-        });
-      }
+    } else if (this.data.hour) {
+      this.form.patchValue({
+        time: this.data.hour,
+      });
     }
   }
 
   submit() {
     if (this.form.valid) {
-      this.dialogRef.close(this.form.value);
+      const formValue = this.form.value;
+      const appointment: Appointment = {
+        title: formValue.title,
+        time: formValue.time,
+        hour: formValue.time,
+        color: formValue.color,
+      };
+      this.dialogRef.close(appointment);
     } else {
       this.markFormGroupTouched(this.form);
     }

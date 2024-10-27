@@ -6,13 +6,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { AppointmentFormComponent } from './../appointment-form/appointment-form.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
-
-interface Appointment {
-  title: string;
-  time: string;
-  hour: string;
-  color: string;
-}
+import {
+  Appointment,
+  AppointmentDialogData,
+} from '../../../models/appointment.interface';
 
 @Component({
   selector: 'app-calendar-view',
@@ -46,13 +43,17 @@ export class CalendarViewComponent implements OnInit {
   }
 
   openAppointmentForm(hour: string) {
+    const dialogData: AppointmentDialogData = {
+      hour,
+      isEdit: false,
+    };
+
     const dialogRef = this.dialog.open(AppointmentFormComponent, {
       width: '550px',
-      data: { hour },
+      data: dialogData,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      console.log(result);
+    dialogRef.afterClosed().subscribe((result: Appointment | undefined) => {
       if (result) {
         const newAppointment: Appointment = {
           ...result,
@@ -151,17 +152,20 @@ export class CalendarViewComponent implements OnInit {
   private updateAppointmentTime(appointment: Appointment, hour: string) {
     appointment.time = hour;
   }
+
   editAppointment(appointment: Appointment) {
+    const dialogData: AppointmentDialogData = {
+      hour: appointment.hour,
+      isEdit: true,
+      appointment: appointment,
+    };
+
     const dialogRef = this.dialog.open(AppointmentFormComponent, {
       width: '550px',
-      data: {
-        hour: appointment.hour,
-        isEdit: true,
-        appointment: appointment,
-      },
+      data: dialogData,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: Appointment | undefined) => {
       if (result) {
         const index = this.appointments.findIndex(
           (app) =>
