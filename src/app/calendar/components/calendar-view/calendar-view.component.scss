@@ -1,3 +1,17 @@
+.btn-create-appointment {
+  width: 100%;
+  text-align: center;
+}
+.btn-create-appointment button {
+  padding: 5px;
+  color: #000;
+  background-color: rgb(251, 188, 5);
+  border: 0;
+  border-radius: 2px;
+  margin: 9px;
+  cursor: pointer;
+}
+
 .calendar-container {
   display: grid;
   grid-template-columns: 80px 1fr;
@@ -14,7 +28,7 @@
 }
 
 .hour-label {
-  height: 75.5px;
+  height: 77.5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,6 +52,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  cursor: pointer;
 }
 
 .appointment {
@@ -79,5 +94,61 @@
   .calendar-grid {
     grid-template-rows: repeat(12, 60px);
     padding: 5px;
+  }
+}
+.appointment {
+  color: #fff;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: move;
+  margin: 3px;
+  min-width: 120px;
+  max-width: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+
+  h4 {
+    margin: 0;
+    font-size: 14px;
+    flex-grow: 1;
+  }
+}
+
+.more-button {
+  color: white;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border: 0;
+
+  .mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.mat-menu-item {
+  font-size: 14px;
+  height: 36px;
+  line-height: 36px;
+
+  .mat-icon {
+    margin-right: 8px;
   }
 }

@@ -1,3 +1,13 @@
+<div class="btn-create-appointment">
+  <button
+    (click)="openAppointmentForm('')"
+    (keydown.enter)="openAppointmentForm('')"
+    (keydown.space)="openAppointmentForm('')"
+    tabindex="0"
+  >
+    Create Appointment
+  </button>
+</div>
 <div class="calendar-container">
   <div class="hour-column">
     <div *ngFor="let hour of hours" class="hour-label">{{ hour }}</div>
@@ -8,6 +18,9 @@
       *ngFor="let hour of hours"
       class="time-slot"
       (click)="openAppointmentForm(hour)"
+      (keydown.enter)="openAppointmentForm(hour)"
+      (keydown.space)="openAppointmentForm(hour)"
+      tabindex="0"
       cdkDropList
       (cdkDropListDropped)="drop($event, hour)"
       [attr.data-hour]="hour"
@@ -15,11 +28,32 @@
       <div
         *ngFor="let appointment of getAppointmentsForHour(hour)"
         class="appointment"
-        [ngStyle]="{'background-color': appointment.color}"
+        [ngStyle]="{ 'background-color': appointment.color }"
         cdkDrag
         [cdkDragData]="appointment"
       >
-        <h4>{{ appointment.title }}</h4>
+        <div class="appointment-header">
+          <h4>{{ appointment.title }}</h4>
+          <button
+            mat-icon-button
+            [matMenuTriggerFor]="menu"
+            class="more-button"
+            (click)="stopPropagation($event)"
+            [ngStyle]="{ 'background-color': appointment.color }"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="editAppointment(appointment)">
+              <mat-icon>edit</mat-icon>
+              <span>Edit</span>
+            </button>
+            <button mat-menu-item (click)="deleteAppointment(appointment)">
+              <mat-icon>delete</mat-icon>
+              <span>Delete</span>
+            </button>
+          </mat-menu>
+        </div>
         <p>{{ appointment.time }}</p>
       </div>
     </div>
