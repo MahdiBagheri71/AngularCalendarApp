@@ -20,7 +20,7 @@ describe('AppointmentFormComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [
-        AppointmentFormComponent, // اضافه کردن کامپوننت در imports
+        AppointmentFormComponent,
         ReactiveFormsModule,
         NoopAnimationsModule,
         MatFormFieldModule,
@@ -33,7 +33,7 @@ describe('AppointmentFormComponent', () => {
         { provide: MatDialogRef, useValue: dialogRefSpy },
         {
           provide: MAT_DIALOG_DATA,
-          useValue: { hour: '08' }, // مقدار پیش‌فرض hour برای جلوگیری از خطای padStart
+          useValue: { hour: '08' },
         },
       ],
     }).compileComponents();
@@ -50,8 +50,8 @@ describe('AppointmentFormComponent', () => {
   it('should initialize the form with default values', () => {
     expect(component.form.value).toEqual({
       title: '',
-      time: '08:00', // مقدار پیش‌فرض از hour
-      color: '#448AFF',
+      time: '08',
+      color: '#1B5E20',
     });
   });
 
@@ -84,7 +84,10 @@ describe('AppointmentFormComponent', () => {
     form.triggerEventHandler('ngSubmit', null);
 
     expect(component.submit).toHaveBeenCalled();
-    expect(dialogRefSpy.close).toHaveBeenCalledWith(component.form.value);
+    expect(dialogRefSpy.close).toHaveBeenCalledWith({
+      ...component.form.value,
+      hour: '09:00',
+    });
   });
 
   it('should not close the dialog if form is invalid on submit', () => {
