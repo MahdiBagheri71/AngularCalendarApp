@@ -76,7 +76,7 @@ export class AppointmentFormComponent implements OnInit {
 
     if (this.availableHours.includes(hour)) {
       this.form.patchValue({
-        time: hour
+        time: hour,
       });
     }
   }
