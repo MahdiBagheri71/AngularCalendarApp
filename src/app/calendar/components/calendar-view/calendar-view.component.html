@@ -1,3 +1,11 @@
+<div class="btn-create-appointment">
+  <button (click)="openAppointmentForm('')"
+  (keydown.enter)="openAppointmentForm('')"
+  (keydown.space)="openAppointmentForm('')"
+  tabindex="0">
+    Create Appointment
+  </button>
+</div>
 <div class="calendar-container">
   <div class="hour-column">
     <div *ngFor="let hour of hours" class="hour-label">{{ hour }}</div>

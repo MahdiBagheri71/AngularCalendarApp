@@ -72,10 +72,13 @@ export class AppointmentFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    const formattedHour = this.data.hour.padStart(2, '0') + ':00';
-    this.form.patchValue({
-      time: formattedHour,
-    });
+    const hour = this.data.hour;
+
+    if (this.availableHours.includes(hour)) {
+      this.form.patchValue({
+        time: hour
+      });
+    }
   }
 
   submit() {
