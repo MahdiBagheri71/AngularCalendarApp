@@ -8,7 +8,7 @@ import { CalendarViewComponent } from './calendar-view.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { of } from 'rxjs';
-import { AppointmentFormComponent } from './../appointment-form/appointment-form.component';
+import { AppointmentFormComponent } from '../appointment-form/appointment-form.component';
 import { Appointment } from '../../../models/appointment.interface';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 

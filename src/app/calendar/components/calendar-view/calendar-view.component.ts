@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { MatDialog } from '@angular/material/dialog';
-import { AppointmentFormComponent } from './../appointment-form/appointment-form.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
+import { AppointmentFormComponent } from './../appointment-form/appointment-form.component';
 import {
   Appointment,
   AppointmentDialogData,
@@ -19,6 +21,8 @@ import {
   imports: [CommonModule, DragDropModule, MatMenuModule, MatIconModule],
 })
 export class CalendarViewComponent implements OnInit {
+  currentDate: Date = new Date();
+
   hours = [
     '08:00 AM',
     '09:00 AM',
@@ -36,10 +40,49 @@ export class CalendarViewComponent implements OnInit {
 
   appointments: Appointment[] = [];
 
-  constructor(private dialog: MatDialog) {}
+  constructor(
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
+  ) {}
 
   ngOnInit() {
-    this.loadAppointments();
+    this.route.params
+      .pipe(map((params) => new Date(params['date'])))
+      .subscribe((date) => {
+        this.currentDate = date;
+        this.loadAppointments();
+      });
+  }
+
+  saveAppointments() {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const dateKey = this.formatDate(this.currentDate);
+      localStorage.setItem(
+        `appointments_${dateKey}`,
+        JSON.stringify(this.appointments),
+      );
+    }
+  }
+
+  loadAppointments() {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const dateKey = this.formatDate(this.currentDate);
+      const storedAppointments = localStorage.getItem(
+        `appointments_${dateKey}`,
+      );
+      if (storedAppointments) {
+        this.appointments = JSON.parse(storedAppointments);
+      } else {
+        this.appointments = this.generateSampleAppointments();
+        this.saveAppointments();
+      }
+    } else {
+      this.appointments = this.generateSampleAppointments();
+    }
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
   }
 
   openAppointmentForm(hour: string) {
@@ -65,26 +108,6 @@ export class CalendarViewComponent implements OnInit {
     });
   }
 
-  loadAppointments() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const storedAppointments = localStorage.getItem('appointments');
-      if (storedAppointments) {
-        this.appointments = JSON.parse(storedAppointments);
-      } else {
-        this.appointments = this.generateSampleAppointments();
-        this.saveAppointments();
-      }
-    } else {
-      this.appointments = this.generateSampleAppointments();
-    }
-  }
-
-  saveAppointments() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem('appointments', JSON.stringify(this.appointments));
-    }
-  }
-
   generateSampleAppointments(): Appointment[] {
     const sampleTasks = [
       { title: 'Team Meeting', time: '08:30 AM', hour: '08:00 AM' },
@@ -107,28 +130,28 @@ export class CalendarViewComponent implements OnInit {
 
   getRandomColor() {
     const colors = [
-      '#D32F2F', // Dark Red
-      '#C2185B', // Dark Pink
-      '#7B1FA2', // Dark Purple
-      '#512DA8', // Deep Purple
-      '#303F9F', // Dark Indigo
-      '#1976D2', // Dark Blue
-      '#0288D1', // Dark Light Blue
-      '#0097A7', // Dark Cyan
-      '#00796B', // Dark Teal
-      '#388E3C', // Dark Green
-      '#689F38', // Dark Light Green
-      '#AFB42B', // Dark Lime
-      '#B71C1C', // Deeper Red
-      '#880E4F', // Deeper Pink
-      '#4A148C', // Deeper Purple
-      '#311B92', // Deeper Purple
-      '#1A237E', // Deeper Indigo
-      '#0D47A1', // Deeper Blue
-      '#01579B', // Deeper Light Blue
-      '#006064', // Deeper Cyan
-      '#004D40', // Deeper Teal
-      '#1B5E20', // Deeper Green
+      '#D32F2F',
+      '#C2185B',
+      '#7B1FA2',
+      '#512DA8',
+      '#303F9F',
+      '#1976D2',
+      '#0288D1',
+      '#0097A7',
+      '#00796B',
+      '#388E3C',
+      '#689F38',
+      '#AFB42B',
+      '#B71C1C',
+      '#880E4F',
+      '#4A148C',
+      '#311B92',
+      '#1A237E',
+      '#0D47A1',
+      '#01579B',
+      '#006064',
+      '#004D40',
+      '#1B5E20',
     ];
     return colors[Math.floor(Math.random() * colors.length)];
   }
