@@ -17,6 +17,35 @@ ng serve
 
 Then, you can visit [http://localhost:4200/](http://localhost:4200/). The application will automatically reload if you change any of the source files.
 
+## **Docker Setup**
+
+### Prerequisites
+
+- Docker installed on your system
+- Docker Compose (optional)
+
+### Building and Running with Docker
+
+1. Build the Docker image:
+
+```bash
+docker build -t calendar-app .
+```
+
+2. Run the container:
+
+```bash
+docker run -p 8080:80 calendar-app
+```
+
+The application will be available at [http://localhost:8080](http://localhost:8080)
+
+### Docker Development Tips
+
+- The provided Dockerfile uses multi-stage builds to optimize the image size
+- The application runs on Nginx for better performance
+- Use the .dockerignore file to exclude unnecessary files from the build context
+
 ## **Code Scaffolding**
 
 To generate a new component, you can use the following command:
