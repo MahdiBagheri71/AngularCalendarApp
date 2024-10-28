@@ -1,1 +1,14 @@
-<p>calendar works!</p>
+<mat-card class="calendar-card">
+  <mat-card-content class="calendar-content">
+    <mat-form-field>
+      <mat-datepicker #picker></mat-datepicker>
+      <input
+        matInput
+        [matDatepicker]="picker"
+        [(ngModel)]="selectedDate"
+        (dateChange)="dateSelected($event.value)"
+      />
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    </mat-form-field>
+  </mat-card-content>
+</mat-card>
