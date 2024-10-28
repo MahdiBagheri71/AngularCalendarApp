@@ -24,8 +24,8 @@ describe('CalendarComponent', () => {
         MatInputModule,
         FormsModule,
         RouterTestingModule,
-        CalendarComponent // اضافه کردن کامپوننت به imports
-      ]
+        CalendarComponent, // اضافه کردن کامپوننت به imports
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CalendarComponent);

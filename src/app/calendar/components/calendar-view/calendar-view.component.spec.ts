@@ -1,14 +1,7 @@
-import {
-  ComponentFixture,
-  TestBed,
-  fakeAsync,
-  tick,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CalendarViewComponent } from './calendar-view.component';
 import { MatDialog } from '@angular/material/dialog';
-import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { of } from 'rxjs';
-import { AppointmentFormComponent } from '../appointment-form/appointment-form.component';
 import { Appointment } from '../../../models/appointment.interface';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
@@ -34,13 +27,10 @@ describe('CalendarViewComponent', () => {
     dialogSpy.open.and.returnValue(dialogRefSpyObj);
 
     await TestBed.configureTestingModule({
-      imports: [
-        CalendarViewComponent,
-        BrowserAnimationsModule,
-      ],
+      imports: [CalendarViewComponent, BrowserAnimationsModule],
       providers: [
         { provide: MatDialog, useValue: dialogSpy },
-        { provide: ActivatedRoute, useValue: { params: of({}) } }
+        { provide: ActivatedRoute, useValue: { params: of({}) } },
       ],
     }).compileComponents();
 
@@ -69,7 +59,6 @@ describe('CalendarViewComponent', () => {
     expect(component.hours[component.hours.length - 1]).toBe('07:00 PM');
   });
 
-
   describe('getAppointmentsForHour', () => {
     beforeEach(() => {
       component.appointments = [
@@ -89,7 +78,6 @@ describe('CalendarViewComponent', () => {
     beforeEach(() => {
       component.appointments = [mockAppointment];
     });
-
 
     it('should save appointments after deletion', () => {
       spyOn(component, 'saveAppointments');
