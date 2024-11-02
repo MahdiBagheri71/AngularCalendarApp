@@ -10,3 +10,9 @@ export interface AppointmentDialogData {
   isEdit?: boolean;
   appointment?: Appointment;
 }
+
+export interface ValidationMessages {
+  [key: string]: {
+    [key: string]: string;
+  };
+}

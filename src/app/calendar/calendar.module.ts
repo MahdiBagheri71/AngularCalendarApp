@@ -12,7 +12,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 const routes: Routes = [{ path: '', component: CalendarComponent }];
 
 @NgModule({
-  declarations: [CalendarComponent],
+  declarations: [],
   imports: [
     CommonModule,
     DragDropModule,
@@ -23,6 +23,7 @@ const routes: Routes = [{ path: '', component: CalendarComponent }];
     MatDialogModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes),
+    CalendarComponent,
   ],
 })
 export class CalendarModule {}

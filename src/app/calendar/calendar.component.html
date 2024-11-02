@@ -5,10 +5,22 @@
       <input
         matInput
         [matDatepicker]="picker"
-        [(ngModel)]="selectedDate"
+        [formControl]="dateControl"
         (dateChange)="dateSelected($event.value)"
       />
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-error
+        class="calendar-card-error"
+        *ngIf="dateControl.hasError('dateOutOfRange')"
+      >
+        Date must be between one year ago and two years from now.
+      </mat-error>
+      <mat-error
+        class="calendar-card-error"
+        *ngIf="dateControl.hasError('required')"
+      >
+        Date is required.
+      </mat-error>
     </mat-form-field>
   </mat-card-content>
 </mat-card>
