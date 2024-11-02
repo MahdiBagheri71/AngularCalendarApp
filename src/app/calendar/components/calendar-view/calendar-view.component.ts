@@ -1,83 +1,134 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
+import { Subject, takeUntil } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
-import { AppointmentFormComponent } from './../appointment-form/appointment-form.component';
+import { AppointmentFormComponent } from '../appointment-form/appointment-form.component';
 import {
   Appointment,
   AppointmentDialogData,
 } from '../../../models/appointment.interface';
+import {
+  AVAILABLE_HOURS,
+  APPOINTMENT_COLORS,
+  SAMPLE_APPOINTMENT_TITLES,
+} from '../../../constants/calendar.constants';
+import { MatIconButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-calendar-view',
   templateUrl: './calendar-view.component.html',
   styleUrls: ['./calendar-view.component.scss'],
   standalone: true,
-  imports: [CommonModule, DragDropModule, MatMenuModule, MatIconModule],
+  imports: [
+    CommonModule,
+    DragDropModule,
+    MatMenuModule,
+    MatIconModule,
+    MatIconButton,
+  ],
 })
-export class CalendarViewComponent implements OnInit {
+export class CalendarViewComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   currentDate: Date = new Date();
-
-  hours = [
-    '08:00 AM',
-    '09:00 AM',
-    '10:00 AM',
-    '11:00 AM',
-    '12:00 PM',
-    '01:00 PM',
-    '02:00 PM',
-    '03:00 PM',
-    '04:00 PM',
-    '05:00 PM',
-    '06:00 PM',
-    '07:00 PM',
-  ];
-
   appointments: Appointment[] = [];
+  loading = false;
+  error: string | null = null;
+
+  hours = AVAILABLE_HOURS;
 
   constructor(
     private dialog: MatDialog,
     private route: ActivatedRoute,
   ) {}
 
+  private isValidDateFormat(dateString: string): boolean {
+    const dateFormatRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateFormatRegex.test(dateString)) {
+      return false;
+    }
+
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return dateString === `${year}-${month}-${day}`;
+  }
+
   ngOnInit() {
     this.route.params
-      .pipe(map((params) => new Date(params['date'])))
+      .pipe(
+        takeUntil(this.destroy$),
+        map((params) => {
+          if (!this.isValidDateFormat(params['date'])) {
+            throw new Error('INVALID_DATE_FORMAT');
+          }
+          return new Date(params['date']);
+        }),
+        catchError((error) => {
+          this.error =
+            error.message === 'INVALID_DATE_FORMAT'
+              ? 'Date must be in YYYY-MM-DD format'
+              : 'Invalid date provided';
+          return [];
+        }),
+      )
       .subscribe((date) => {
-        this.currentDate = date;
-        this.loadAppointments();
+        if (date) {
+          this.currentDate = date;
+          this.loadAppointments();
+        }
       });
   }
 
-  saveAppointments() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const dateKey = this.formatDate(this.currentDate);
-      localStorage.setItem(
-        `appointments_${dateKey}`,
-        JSON.stringify(this.appointments),
-      );
+  getAppointmentsForHour(hour: string): Appointment[] {
+    return this.appointments.filter((app) => app.hour === hour);
+  }
+
+  private loadAppointments() {
+    this.loading = true;
+    this.error = null;
+
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const dateKey = this.formatDate(this.currentDate);
+        const storedAppointments = localStorage.getItem(
+          `appointments_${dateKey}`,
+        );
+
+        if (storedAppointments) {
+          this.appointments = JSON.parse(storedAppointments);
+        } else {
+          this.appointments = this.generateSampleAppointments();
+          this.saveAppointments();
+        }
+      }
+    } catch (error) {
+      this.error = 'Error loading the appointments.';
+      console.error('Error loading appointments:', error);
+    } finally {
+      this.loading = false;
     }
   }
 
-  loadAppointments() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const dateKey = this.formatDate(this.currentDate);
-      const storedAppointments = localStorage.getItem(
-        `appointments_${dateKey}`,
-      );
-      if (storedAppointments) {
-        this.appointments = JSON.parse(storedAppointments);
-      } else {
-        this.appointments = this.generateSampleAppointments();
-        this.saveAppointments();
+  saveAppointments(): void {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const dateKey = this.formatDate(this.currentDate);
+        localStorage.setItem(
+          `appointments_${dateKey}`,
+          JSON.stringify(this.appointments),
+        );
       }
-    } else {
-      this.appointments = this.generateSampleAppointments();
+    } catch (error) {
+      this.error = 'Error saving the appointments.';
+      console.error('Error saving appointments:', error);
     }
   }
 
@@ -96,74 +147,32 @@ export class CalendarViewComponent implements OnInit {
       data: dialogData,
     });
 
-    dialogRef.afterClosed().subscribe((result: Appointment | undefined) => {
-      if (result) {
-        const newAppointment: Appointment = {
-          ...result,
-          hour: result.time,
-        };
-        this.appointments.push(newAppointment);
-        this.saveAppointments();
-      }
-    });
-  }
-
-  generateSampleAppointments(): Appointment[] {
-    const sampleTasks = [
-      { title: 'Team Meeting', time: '08:30 AM', hour: '08:00 AM' },
-      { title: 'Dentist Appointment', time: '10:00 AM', hour: '10:00 AM' },
-      { title: 'Gym', time: '05:00 PM', hour: '05:00 PM' },
-      { title: 'Project Discussion', time: '09:00 AM', hour: '09:00 AM' },
-      { title: 'Lunch with Sarah', time: '12:30 PM', hour: '12:00 PM' },
-      { title: 'Code Review', time: '03:00 PM', hour: '03:00 PM' },
-      { title: 'Doctor Visit', time: '01:30 PM', hour: '01:00 PM' },
-      { title: 'Workout', time: '07:00 PM', hour: '07:00 PM' },
-      { title: 'Client Meeting', time: '04:00 PM', hour: '04:00 PM' },
-      { title: 'Reading', time: '06:00 PM', hour: '06:00 PM' },
-    ];
-
-    return sampleTasks.map((task) => ({
-      ...task,
-      color: this.getRandomColor(),
-    }));
-  }
-
-  getRandomColor() {
-    const colors = [
-      '#D32F2F',
-      '#C2185B',
-      '#7B1FA2',
-      '#512DA8',
-      '#303F9F',
-      '#1976D2',
-      '#0288D1',
-      '#0097A7',
-      '#00796B',
-      '#388E3C',
-      '#689F38',
-      '#AFB42B',
-      '#B71C1C',
-      '#880E4F',
-      '#4A148C',
-      '#311B92',
-      '#1A237E',
-      '#0D47A1',
-      '#01579B',
-      '#006064',
-      '#004D40',
-      '#1B5E20',
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  }
-
-  getAppointmentsForHour(hour: string): Appointment[] {
-    return this.appointments.filter((app) => app.hour === hour);
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result: Appointment | undefined) => {
+        if (result) {
+          const newAppointment: Appointment = {
+            ...result,
+            hour: result.time,
+          };
+          this.appointments = [...this.appointments, newAppointment];
+          this.saveAppointments();
+        }
+      });
   }
 
   drop(event: CdkDragDrop<Appointment[]>, targetHour: string) {
     const appointment = event.item.data as Appointment;
 
     if (appointment) {
+      // Check if the target hour already has maximum appointments
+      const appointmentsInHour = this.getAppointmentsForHour(targetHour);
+      if (appointmentsInHour.length >= 3) {
+        this.error = 'A maximum of 3 appointments per hour is allowed.';
+        return;
+      }
+
       appointment.hour = targetHour;
       this.updateAppointmentTime(appointment, targetHour);
 
@@ -172,8 +181,9 @@ export class CalendarViewComponent implements OnInit {
     }
   }
 
-  private updateAppointmentTime(appointment: Appointment, hour: string) {
-    appointment.time = hour;
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   editAppointment(appointment: Appointment) {
@@ -206,6 +216,10 @@ export class CalendarViewComponent implements OnInit {
     });
   }
 
+  private updateAppointmentTime(appointment: Appointment, hour: string) {
+    appointment.time = hour;
+  }
+
   deleteAppointment(appointment: Appointment) {
     const index = this.appointments.findIndex(
       (app) => app.title === appointment.title && app.hour === appointment.hour,
@@ -215,6 +229,45 @@ export class CalendarViewComponent implements OnInit {
       this.appointments.splice(index, 1);
       this.saveAppointments();
     }
+  }
+
+  generateSampleAppointments(): Appointment[] {
+    const numberOfAppointments = Math.floor(Math.random() * 8) + 3; // Random number between 3 and 10
+    const appointments: Appointment[] = [];
+    const usedHours = new Set<string>();
+
+    for (let i = 0; i < numberOfAppointments; i++) {
+      let randomHour: string;
+      do {
+        const randomIndex = Math.floor(Math.random() * AVAILABLE_HOURS.length);
+        randomHour = AVAILABLE_HOURS[randomIndex];
+      } while (usedHours.has(randomHour));
+
+      usedHours.add(randomHour);
+
+      const randomTitle =
+        SAMPLE_APPOINTMENT_TITLES[
+          Math.floor(Math.random() * SAMPLE_APPOINTMENT_TITLES.length)
+        ];
+
+      appointments.push({
+        title: randomTitle,
+        time: randomHour,
+        hour: randomHour,
+        color:
+          APPOINTMENT_COLORS[
+            Math.floor(Math.random() * APPOINTMENT_COLORS.length)
+          ],
+      });
+    }
+
+    return appointments;
+  }
+
+  getRandomColor() {
+    return APPOINTMENT_COLORS[
+      Math.floor(Math.random() * APPOINTMENT_COLORS.length)
+    ];
   }
 
   stopPropagation(event: Event) {

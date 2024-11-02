@@ -1,7 +1,11 @@
 .calendar-card {
   max-width: 400px;
   margin: 20px auto;
+  padding: 25px;
 }
 .calendar-content {
   margin: auto;
+}
+.calendar-card-error {
+  font-size: 9px;
 }

@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   FormBuilder,
@@ -11,11 +11,17 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
-import { CommonModule } from '@angular/common';
 import {
   Appointment,
   AppointmentDialogData,
+  ValidationMessages,
 } from '../../../models/appointment.interface';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import {
+  AVAILABLE_HOURS,
+  APPOINTMENT_COLORS,
+} from '../../../constants/calendar.constants';
 
 @Component({
   selector: 'app-appointment-form',
@@ -32,60 +38,87 @@ import {
     MatSelectModule,
   ],
 })
-export class AppointmentFormComponent implements OnInit {
-  form: FormGroup;
-  availableHours: string[] = [
-    '08:00 AM',
-    '09:00 AM',
-    '10:00 AM',
-    '11:00 AM',
-    '12:00 PM',
-    '01:00 PM',
-    '02:00 PM',
-    '03:00 PM',
-    '04:00 PM',
-    '05:00 PM',
-    '06:00 PM',
-    '07:00 PM',
-  ];
-  defaultColors: string[] = [
-    '#D32F2F', // Dark Red
-    '#C2185B', // Dark Pink
-    '#7B1FA2', // Dark Purple
-    '#512DA8', // Deep Purple
-    '#303F9F', // Dark Indigo
-    '#1976D2', // Dark Blue
-    '#0288D1', // Dark Light Blue
-    '#0097A7', // Dark Cyan
-    '#00796B', // Dark Teal
-    '#388E3C', // Dark Green
-    '#689F38', // Dark Light Green
-    '#AFB42B', // Dark Lime
-    '#B71C1C', // Deeper Red
-    '#880E4F', // Deeper Pink
-    '#4A148C', // Deeper Purple
-    '#311B92', // Deeper Purple
-    '#1A237E', // Deeper Indigo
-    '#0D47A1', // Deeper Blue
-    '#01579B', // Deeper Light Blue
-    '#006064', // Deeper Cyan
-    '#004D40', // Deeper Teal
-    '#1B5E20', // Deeper Green
-  ];
+export class AppointmentFormComponent implements OnInit, OnDestroy {
+  form!: FormGroup;
+  private destroy$ = new Subject<void>();
+  formErrors: { [key: string]: string } = {};
+
+  availableHours = AVAILABLE_HOURS;
+  defaultColors = APPOINTMENT_COLORS;
+
+  validationMessages: ValidationMessages = {
+    title: {
+      required: 'Title is required',
+      minlength: 'Title must be at least 3 characters long',
+      maxlength: 'Title cannot be more than 50 characters long',
+    },
+    time: {
+      required: 'Time is required',
+    },
+    color: {
+      required: 'Color is required',
+    },
+  };
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<AppointmentFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: AppointmentDialogData,
   ) {
+    this.initializeForm();
+  }
+
+  private initializeForm(): void {
     this.form = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(3)]],
+      title: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(50),
+        ],
+      ],
       time: ['', Validators.required],
       color: ['#1B5E20', Validators.required],
     });
   }
 
   ngOnInit() {
+    this.setupFormValueChanges();
+    this.loadInitialData();
+  }
+
+  private setupFormValueChanges(): void {
+    // Monitor title changes with debounce
+    this.form
+      .get('title')
+      ?.valueChanges.pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300),
+        distinctUntilChanged(),
+      )
+      .subscribe(() => {
+        this.validateField('title');
+      });
+
+    // Monitor time changes
+    this.form
+      .get('time')
+      ?.valueChanges.pipe(takeUntil(this.destroy$), distinctUntilChanged())
+      .subscribe(() => {
+        this.validateField('time');
+      });
+
+    // Monitor color changes
+    this.form
+      .get('color')
+      ?.valueChanges.pipe(takeUntil(this.destroy$), distinctUntilChanged())
+      .subscribe(() => {
+        this.validateField('color');
+      });
+  }
+
+  private loadInitialData(): void {
     if (this.data.isEdit && this.data.appointment) {
       this.form.patchValue({
         title: this.data.appointment.title,
@@ -99,39 +132,61 @@ export class AppointmentFormComponent implements OnInit {
     }
   }
 
+  validateField(fieldName: 'title' | 'time' | 'color'): void {
+    const control = this.form.get(fieldName);
+    const messages = this.validationMessages[fieldName];
+
+    this.formErrors[fieldName] = '';
+
+    if (control && !control.valid && (control.dirty || control.touched)) {
+      Object.keys(control.errors || {}).some((errorKey) => {
+        if (messages[errorKey]) {
+          this.formErrors[fieldName] = messages[errorKey];
+          return true;
+        }
+        return false;
+      });
+    }
+  }
+
   submit() {
     if (this.form.valid) {
       const formValue = this.form.value;
       const appointment: Appointment = {
-        title: formValue.title,
+        title: formValue.title.trim(),
         time: formValue.time,
         hour: formValue.time,
         color: formValue.color,
       };
       this.dialogRef.close(appointment);
     } else {
-      this.markFormGroupTouched(this.form);
+      this.validateAllFormFields();
     }
   }
 
-  private markFormGroupTouched(formGroup: FormGroup) {
-    Object.values(formGroup.controls).forEach((control) => {
-      control.markAsTouched();
+  private validateAllFormFields() {
+    const fields: Array<'title' | 'time' | 'color'> = [
+      'title',
+      'time',
+      'color',
+    ];
+    fields.forEach((field) => {
+      const control = this.form.get(field);
+      control?.markAsTouched();
+      this.validateField(field);
     });
+  }
+
+  getErrorMessage(controlName: string): string {
+    return this.formErrors[controlName] || '';
   }
 
   cancel() {
     this.dialogRef.close();
   }
 
-  getErrorMessage(controlName: string): string {
-    const control = this.form.get(controlName);
-    if (control?.hasError('required')) {
-      return 'This field is required';
-    }
-    if (control?.hasError('minlength')) {
-      return 'Minimum 3 characters required';
-    }
-    return '';
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
